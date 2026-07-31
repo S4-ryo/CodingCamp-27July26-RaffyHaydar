@@ -1,0 +1,556 @@
+﻿/* css/style.css — To-Do Life Dashboard */
+
+/* ============================================================
+   1. CSS Reset
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================
+   2. Base / Body
+   ============================================================ */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  background-color: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   3. Dashboard Grid — wide layout (≥ 768 px)
+   ============================================================ */
+#dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   4. Section Placement
+   ============================================================ */
+
+/* Clock spans both columns at the top */
+#clock-section {
+  grid-column: 1 / -1;
+}
+
+/* Timer sits in column 1 */
+#timer-section {
+  grid-column: 1;
+}
+
+/* To-Do list spans column 2 and stretches to fill the cell height */
+#todo-section {
+  grid-column: 2;
+  grid-row: 2 / span 2; /* spans the same rows as timer + links */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Links sit in column 1, below the timer */
+#links-section {
+  grid-column: 1;
+}
+
+/* ============================================================
+   5. Section Card Style — shared by all four sections
+   ============================================================ */
+#clock-section,
+#timer-section,
+#todo-section,
+#links-section {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+   6. Section Headings
+   ============================================================ */
+h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+/* ============================================================
+   7. Responsive Breakpoint — narrow layout (< 768 px)
+   ============================================================ */
+@media (max-width: 767px) {
+  #dashboard {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  /* Reset explicit placements so sections stack naturally */
+  #clock-section,
+  #timer-section,
+  #todo-section,
+  #links-section {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  /* Remove the flex-column stretch on narrow screens */
+  #todo-section {
+    display: block;
+  }
+}
+
+/* ============================================================
+   8. Toast Notifications
+   ============================================================ */
+
+/* Container sits fixed at the bottom-right corner of the viewport.
+   It stacks individual toasts vertically with a gap.
+   pointer-events: none on the container so it never blocks clicks
+   on underlying content; individual toasts restore pointer-events. */
+#toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Individual toast notification */
+.toast {
+  background-color: #1a1a2e;
+  color: #ffffff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-width: 20rem;
+  word-break: break-word;
+  pointer-events: auto;
+  z-index: 1000;
+  /* Subtle fade-in */
+  opacity: 0;
+  animation: toast-fadein 0.2s ease forwards;
+}
+
+@keyframes toast-fadein {
+  to {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   9. Focus Timer
+   ============================================================ */
+
+/* Large monospace countdown display */
+#timer-display {
+  font-size: 3.5rem;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+/* "Session complete!" message — visibility controlled by the hidden HTML attr;
+   JS removes/adds that attribute, so no display:none needed here */
+#timer-done {
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #16a34a;
+  margin-bottom: 0.75rem;
+}
+
+/* Button row */
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* Shared button styles */
+#timer-start,
+#timer-stop,
+#timer-reset {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+#timer-start:active,
+#timer-stop:active,
+#timer-reset:active {
+  transform: scale(0.97);
+}
+
+/* Individual button colours */
+#timer-start {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+#timer-start:hover {
+  background-color: #1d4ed8;
+}
+
+#timer-stop {
+  background-color: #f59e0b;
+  color: #ffffff;
+}
+
+#timer-stop:hover {
+  background-color: #d97706;
+}
+
+#timer-reset {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+#timer-reset:hover {
+  background-color: #d1d5db;
+}
+
+/* Done-state visual on the section card */
+#timer-section.timer-done {
+  border: 2px solid #16a34a;
+  background-color: #f0fdf4;
+}
+
+/* ============================================================
+   10. Task Panel
+   ============================================================ */
+
+/* --- Form layout --- */
+#todo-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+#todo-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+#todo-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#todo-form button[type="submit"] {
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#todo-form button[type="submit"]:hover {
+  background-color: #1d4ed8;
+}
+
+/* --- Inline error messages --- */
+#todo-error {
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin-bottom: 0.5rem;
+  display: none;
+}
+
+#links-error {
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin-bottom: 0.5rem;
+  display: none;
+}
+
+.error-visible {
+  display: block !important;
+}
+
+/* --- Task list --- */
+#todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+#todo-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* --- Task text --- */
+.task-text {
+  flex: 1;
+  font-size: 0.95rem;
+  word-break: break-word;
+}
+
+.task-done .task-text {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
+
+/* --- Action buttons — shared base --- */
+.btn-complete,
+.btn-edit,
+.btn-delete {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-complete:active,
+.btn-edit:active,
+.btn-delete:active {
+  transform: scale(0.93);
+}
+
+/* --- Individual button colours --- */
+.btn-complete {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.btn-complete:hover {
+  background-color: #bbf7d0;
+}
+
+.task-done .btn-complete {
+  background-color: #16a34a;
+  color: #fff;
+}
+
+.btn-edit {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.btn-edit:hover {
+  background-color: #bfdbfe;
+}
+
+.btn-delete {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.btn-delete:hover {
+  background-color: #fecaca;
+}
+
+/* ============================================================
+   11. Task Edit Mode
+   ============================================================ */
+
+/* Edit-mode row highlight */
+.task-editing {
+  background-color: #eff6ff;
+  border-radius: 0.375rem;
+}
+
+/* Inline edit input — grows to fill available space like .task-text */
+.task-edit-input {
+  flex: 1;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #2563eb;
+  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  min-width: 0; /* prevents flex overflow */
+}
+
+/* Confirm edit button (✔) — green */
+.btn-confirm-edit {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #dcfce7;
+  color: #16a34a;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-confirm-edit:hover {
+  background-color: #bbf7d0;
+}
+
+.btn-confirm-edit:active {
+  transform: scale(0.93);
+}
+
+/* Cancel edit button (✖) — gray */
+.btn-cancel-edit {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-cancel-edit:hover {
+  background-color: #e5e7eb;
+}
+
+.btn-cancel-edit:active {
+  transform: scale(0.93);
+}
+
+/* ============================================================
+   12. Quick Links Panel
+   ============================================================ */
+
+#links-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+#link-label,
+#link-url {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+#link-label:focus,
+#link-url:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+#links-form button[type="submit"] {
+  padding: 0.5rem 1rem;
+  background-color: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#links-form button[type="submit"]:hover {
+  background-color: #1d4ed8;
+}
+
+#links-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+#links-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+#links-list li a {
+  flex: 1;
+  color: #2563eb;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+#links-list li a:hover {
+  text-decoration: underline;
+}
+
+.btn-delete-link {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: #fee2e2;
+  color: #dc2626;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-delete-link:hover {
+  background-color: #fecaca;
+}
+
+.btn-delete-link:active {
+  transform: scale(0.93);
+}
